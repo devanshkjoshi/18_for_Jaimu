@@ -157,8 +157,8 @@
     }
 
     .gift-box.locked .gift-image {
-      /* Extreme blur to show abstract colors without raw shapes. Scale avoids white edge bleeding. */
-      filter: blur(80px) scale(1.4); 
+      /* Massive 120px blur scale to dissolve raw shapes and silhouettes. Scale keeps edges clean. */
+      filter: blur(120px) scale(1.6); 
     }
 
     .gift-box.unlocked .gift-image {
@@ -169,11 +169,12 @@
       transform: scale(1.04);
     }
 
-    /* Obscurity Overlay (No solid black background) */
+    /* Obscurity Overlay (Light wine tint layer) */
     .lock-overlay {
       position: absolute;
       inset: 0;
-      background-color: transparent; /* No black layer, lets the highly blurred colors bleed through */
+      /* Soft, lightweight dark wine layer to dampen extreme contrast, making guessing impossible */
+      background-color: rgba(15, 4, 12, 0.55); 
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -191,7 +192,7 @@
       visibility: hidden;
     }
 
-    /* Drop shadows added to ensure gold elements remain legible on top of highly blurred light backgrounds */
+    /* Drop shadows added to ensure gold elements remain legible on top of dynamic backgrounds */
     .lock-icon {
       color: var(--accent-color);
       width: 24px;

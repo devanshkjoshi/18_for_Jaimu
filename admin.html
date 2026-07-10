@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — 18 for Jaimu</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@300;400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #1a0815;
+      --card-bg: #280f21;
+      --accent-color: #dfba6b;
+      --text-primary: #ebdcb9;
+      --text-secondary: #b292a8;
+      --font-sans: 'Poppins', 'Noto Sans Gujarati', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .auth-backdrop {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(223, 186, 107, 0.2);
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      padding: 2.5rem;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+    }
+
+    .auth-card h2 {
+      text-align: center;
+      color: var(--accent-color);
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    .input-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .input-group label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .input-group input, .input-group textarea {
+      width: 100%;
+      background: rgba(18, 5, 15, 0.6);
+      border: 1px solid rgba(223, 186, 107, 0.2);
+      border-radius: 6px;
+      padding: 0.75rem;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus, .input-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .input-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .admin-btn {
+      width: 100%;
+      background: var(--accent-color);
+      color: #1a0815;
+      border: none;
+      border-radius: 6px;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 1rem;
+    }
+
+    .admin-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    #admin-container {
+      display: none;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(223, 186, 107, 0.15);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .admin-header h1 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      color: var(--accent-color);
+      font-weight: 400;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(223, 186, 107, 0.4);
+      color: var(--accent-color);
+      border-radius: 6px;
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: var(--accent-color);
+      color: #1a0815;
+    }
+
+    .admin-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(223, 186, 107, 0.15);
+      border-radius: 10px;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 140px 1fr 200px;
+      gap: 2rem;
+      align-items: flex-start;
+      transition: border-color 0.3s;
+    }
+
+    .admin-card.delivered-item {
+      border-color: rgba(223, 186, 107, 0.6);
+    }
+
+    .admin-thumb-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .admin-thumb {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #12040f;
+      border: 1px solid rgba(223, 186, 107, 0.1);
+      transition: opacity 0.3s;
+    }
+
+    .file-label {
+      background: rgba(223, 186, 107, 0.1);
+      border: 1px dashed rgba(223, 186, 107, 0.3);
+      color: var(--accent-color);
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-label:hover {
+      background: rgba(223, 186, 107, 0.2);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .admin-inputs {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .gift-num-label {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .status-toggle-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 5, 15, 0.5);
+      padding: 0.85rem;
+      border-radius: 6px;
+      border: 1px solid rgba(223, 186, 107, 0.1);
+    }
+
+    .toggle-status-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #3b1932;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: var(--text-primary);
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+      background-color: var(--bg-color);
+    }
+
+    .save-btn {
+      background: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    .save-btn:hover {
+      background: var(--accent-color);
+      color: #1a0815;
+    }
+
+    .save-btn.success {
+      background: #2b704c;
+      border-color: #2b704c;
+      color: white;
+    }
+
+    .loading-container {
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      padding: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .admin-card {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .admin-thumb-container {
+        align-items: center;
+      }
+      .admin-thumb {
+        max-width: 180px;
+      }
+      .file-label {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-backdrop" id="auth-layer">
+    <div class="auth-card">
+      <h2>18 for Jaimu — Admin</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <label for="email">Admin Email</label>
+          <input type="email" id="email" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="admin-btn">Log In</button>
+        <div id="login-error" class="error-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-container">
+    <header class="admin-header">
+      <h1>Dashboard</h1>
+      <button id="logout-btn" class="logout-btn">Sign Out</button>
+    </header>
+
+    <div class="admin-list" id="admin-list">
+      <div class="loading-container">Verifying assets...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+    import { doc, getDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+    import { auth, db } from "./firebase-config.js";
+
+    const authLayer = document.getElementById('auth-layer');
+    const adminContainer = document.getElementById('admin-container');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+    const adminList = document.getElementById('admin-list');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        authLayer.style.display = 'none';
+        adminContainer.style.display = 'block';
+        await checkAndInitializeDocuments();
+        await loadAndRenderAdmin();
+      } else {
+        authLayer.style.display = 'flex';
+        adminContainer.style.display = 'none';
+      }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        loginError.textContent = "Authentication credentials rejected: " + err.message;
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth);
+    });
+
+    async function checkAndInitializeDocuments() {
+      const promises = [];
+      for (let i = 1; i <= 18; i++) {
+        const id = `gift-${String(i).padStart(2, '0')}`;
+        const docRef = doc(db, 'gifts', id);
+        promises.push(getDoc(docRef).then(snap => ({ snap, docRef, index: i })));
+      }
+
+      const results = await Promise.all(promises);
+      const batch = writeBatch(db);
+      let writesRequired = false;
+
+      results.forEach(({ snap, docRef, index }) => {
+        if (!snap.exists()) {
+          batch.set(docRef, {
+            number: index,
+            title: '',
+            message: '',
+            imageBase64: '',
+            delivered: false
+          });
+          writesRequired = true;
+        }
+      });
+
+      if (writesRequired) {
+        await batch.commit();
+      }
+    }
+
+    async function loadAndRenderAdmin() {
+      adminList.innerHTML = '<div class="loading-container">Syncing files...</div>';
+      try {
+        const gifts = [];
+        for (let i = 1; i <= 18; i++) {
+          const id = `gift-${String(i).padStart(2, '0')}`;
+          const docRef = doc(db, 'gifts', id);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            gifts.push({ id, ...snap.data() });
+          }
+        }
+        renderAdminList(gifts);
+      } catch (err) {
+        adminList.innerHTML = `<div class="error-msg">Failed to query documents: ${err.message}</div>`;
+      }
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDimension = 900;
+
+            if (width > height) {
+              if (width > maxDimension) {
+                height *= maxDimension / width;
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width *= maxDimension / height;
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const base64Url = canvas.toDataURL('image/jpeg', 0.7);
+            resolve(base64Url);
+          };
+          img.onerror = reject;
+        };
+        reader.onerror = reject;
+      });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    function renderAdminList(gifts) {
+      adminList.innerHTML = '';
+      
+      gifts.forEach(gift => {
+        const card = document.createElement('div');
+        card.className = `admin-card ${gift.delivered ? 'delivered-item' : ''}`;
+        card.id = `admin-card-${gift.id}`;
+
+        const noPhotoPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%233b1932'><rect width='100%' height='100%'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23dfba6b' font-size='11'>No Photo</text></svg>";
+
+        card.innerHTML = `
+          <div class="admin-thumb-container">
+            <img class="admin-thumb" id="thumb-${gift.id}" src="${gift.imageBase64 || noPhotoPlaceholder}" alt="Thumbnail">
+            <label class="file-label" for="file-${gift.id}">
+              <span>Upload Photo</span>
+              <input type="file" id="file-${gift.id}" accept="image/*" class="file-input">
+            </label>
+          </div>
+          <div class="admin-inputs">
+            <div class="gift-num-label">Gift #${String(gift.number).padStart(2, '0')}</div>
+            <div class="input-group">
+              <label>Product Name / Title</label>
+              <input type="text" id="title-${gift.id}" value="${escapeHtml(gift.title)}" placeholder="Enter title">
+            </div>
+            <div class="input-group">
+              <label>Personal Message (Gujarati compatible)</label>
+              <textarea id="msg-${gift.id}" placeholder="Type personal note...">${escapeHtml(gift.message)}</textarea>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <div class="status-toggle-wrapper">
+              <span class="toggle-status-text" id="status-txt-${gift.id}">${gift.delivered ? 'Delivered' : 'Locked'}</span>
+              <label class="switch">
+                <input type="checkbox" id="toggle-${gift.id}" ${gift.delivered ? 'checked' : ''}>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <button type="button" class="save-btn" id="save-${gift.id}">Save Text & Photo</button>
+          </div>
+        `;
+
+        adminList.appendChild(card);
+
+        let binaryPayload = gift.imageBase64 || '';
+        const fileInput = card.querySelector(`#file-${gift.id}`);
+        const thumbImg = card.querySelector(`#thumb-${gift.id}`);
+
+        fileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            try {
+              thumbImg.style.opacity = 0.4;
+              binaryPayload = await compressImage(file);
+              thumbImg.src = binaryPayload;
+              thumbImg.style.opacity = 1;
+            } catch (err) {
+              alert("Error parsing image. Attempt another file format: " + err.message);
+              thumbImg.style.opacity = 1;
+            }
+          }
+        });
+
+        const toggleInput = card.querySelector(`#toggle-${gift.id}`);
+        const statusText = card.querySelector(`#status-txt-${gift.id}`);
+
+        toggleInput.addEventListener('change', async (e) => {
+          const isChecked = e.target.checked;
+          statusText.textContent = isChecked ? 'Delivered' : 'Locked';
+          if (isChecked) {
+            card.classList.add('delivered-item');
+          } else {
+            card.classList.remove('delivered-item');
+          }
+
+          try {
+            const docRef = doc(db, 'gifts', gift.id);
+            await updateDoc(docRef, { delivered: isChecked });
+          } catch (err) {
+            alert("Database status synchronization failed: " + err.message);
+            toggleInput.checked = !isChecked;
+            statusText.textContent = !isChecked ? 'Delivered' : 'Locked';
+          }
+        });
+
+        const saveBtn = card.querySelector(`#save-${gift.id}`);
+        saveBtn.addEventListener('click', async () => {
+          const titleVal = card.querySelector(`#title-${gift.id}`).value;
+          const msgVal = card.querySelector(`#msg-${gift.id}`).value;
+
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
+
+          try {
+            const docRef = doc(db, 'gifts', gift.id);
+            await updateDoc(docRef, {
+              title: titleVal,
+              message: msgVal,
+              imageBase64: binaryPayload
+            });
+
+            saveBtn.textContent = 'Saved!';
+            saveBtn.classList.add('success');
+            setTimeout(() => {
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save Text & Photo';
+              saveBtn.classList.remove('success');
+            }, 2000);
+          } catch (err) {
+            alert("Could not update item: " + err.message);
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Text & Photo';
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

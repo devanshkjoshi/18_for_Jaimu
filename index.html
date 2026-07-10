@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18 for Jaimu</title>
+  
+  <!-- Custom Fonts Supporting Latin & Gujarati Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@300;400;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #1a0815; /* Deep luxury wine background */
+      --card-bg: #280f21; /* Rich plum card background */
+      --accent-color: #dfba6b; /* Muted Champagne gold accent */
+      --accent-hover: #f1d596;
+      --text-primary: #ebdcb9; /* Parchment white */
+      --text-secondary: #b292a8; /* Elegant lavender rose */
+      --overlay-bg: rgba(15, 4, 12, 0.95); /* Heavy obscuring background */
+      
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Poppins', sans-serif;
+      --font-gujarati: 'Noto Sans Gujarati', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #2c0e24 0%, var(--bg-color) 100%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      text-align: center;
+      padding: clamp(3rem, 10vw, 5rem) 1.5rem 1rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      color: var(--accent-color);
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+    }
+
+    .subtitle {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: var(--text-secondary);
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      text-align: center;
+      margin: 1.5rem 0 3.5rem;
+    }
+
+    .progress-text {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: var(--accent-color);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar-bg {
+      background: rgba(223, 186, 107, 0.1);
+      height: 3px;
+      width: 220px;
+      margin: 0 auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      background: var(--accent-color);
+      height: 100%;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Grid Layout */
+    .gifts-grid {
+      display: grid;
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 600px) {
+      .gifts-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .gifts-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+
+    /* Gift Cards */
+    .gift-box {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background-color: var(--card-bg);
+      border: 1px solid rgba(223, 186, 107, 0.12);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
+                  border-color 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .gift-box.locked {
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .gift-box.unlocked {
+      cursor: pointer;
+    }
+
+    .gift-box.unlocked:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent-color);
+      box-shadow: 0 12px 30px rgba(223, 186, 107, 0.18);
+    }
+
+    .gift-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1);
+      transition: filter 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
+                  transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .gift-box.locked .gift-image {
+      filter: blur(50px) scale(1.15); /* Strong blur combined with overlay */
+    }
+
+    .gift-box.unlocked .gift-image {
+      filter: blur(0px) scale(1);
+    }
+
+    .gift-box.unlocked:hover .gift-image {
+      transform: scale(1.04);
+    }
+
+    /* Visual Obscurity Layer */
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: var(--overlay-bg);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      z-index: 2;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
+                  visibility 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .gift-box.unlocked .lock-overlay {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .lock-icon {
+      color: var(--accent-color);
+      width: 24px;
+      height: 24px;
+      opacity: 0.85;
+    }
+
+    .lock-number {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      color: var(--accent-color);
+      font-weight: 400;
+      letter-spacing: 0.05em;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 3, 9, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid rgba(223, 186, 107, 0.25);
+      border-radius: 12px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+      transform: scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-backdrop.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.75rem;
+      cursor: pointer;
+      z-index: 10;
+      line-height: 1;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--accent-color);
+      transform: rotate(90deg);
+    }
+
+    .modal-image-container {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background-color: #12040f;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-body {
+      padding: 2.25rem;
+      background: linear-gradient(180deg, var(--card-bg) 0%, #1c0917 100%);
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.85rem;
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    .modal-msg {
+      font-family: var(--font-gujarati), var(--font-sans);
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-weight: 300;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>18 for Jaimu</h1>
+    <div class="subtitle">18 gifts. One for every year of her life.</div>
+  </header>
+
+  <div class="progress-container">
+    <div class="progress-text" id="progress-val">0 / 18 Unlocked</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <main class="gifts-grid" id="grid"></main>
+
+  <div class="modal-backdrop" id="gift-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Close Pop-up">&times;</button>
+      <div class="modal-image-container">
+        <img class="modal-image" id="modal-img" src="" alt="Gift Image Preview">
+      </div>
+      <div class="modal-body">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-msg" id="modal-msg"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 — Designed with love for Jaimu.
+  </footer>
+
+  <script type="module">
+    import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+    import { db } from "./firebase-config.js";
+
+    const grid = document.getElementById('grid');
+    const progressVal = document.getElementById('progress-val');
+    const progressBar = document.getElementById('progress-bar');
+    const modal = document.getElementById('gift-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMsg = document.getElementById('modal-msg');
+    const modalClose = document.getElementById('modal-close');
+
+    const giftsData = {};
+    const giftBoxes = {};
+
+    // Build the grid structure
+    for (let i = 1; i <= 18; i++) {
+      const numStr = String(i).padStart(2, '0');
+      const box = document.createElement('div');
+      box.id = `gift-${numStr}`;
+      box.className = 'gift-box locked';
+      
+      const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%23280f21'/></svg>";
+
+      box.innerHTML = `
+        <img class="gift-image" src="${placeholderImg}" alt="Gift ${numStr}">
+        <div class="lock-overlay">
+          <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <div class="lock-number">${numStr}</div>
+        </div>
+      `;
+
+      box.addEventListener('click', () => {
+        const giftId = box.id;
+        if (giftsData[giftId] && giftsData[giftId].delivered) {
+          openModal(giftId);
+        }
+      });
+
+      grid.appendChild(box);
+      giftBoxes[box.id] = box;
+    }
+
+    function openModal(id) {
+      const data = giftsData[id];
+      if (!data) return;
+
+      const fallbackImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23280f21'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23dfba6b'>No Photo</text></svg>";
+      
+      modalImg.src = data.imageBase64 || fallbackImg;
+      modalTitle.textContent = data.title || `Gift #${String(data.number).padStart(2, '0')}`;
+      modalMsg.textContent = data.message || "A beautiful surprise is awaiting you.";
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Real-Time Sync Listener
+    const q = query(collection(db, "gifts"), orderBy("number"));
+    onSnapshot(q, (snapshot) => {
+      let unlockedCount = 0;
+
+      snapshot.forEach((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        giftsData[id] = data;
+
+        const box = giftBoxes[id];
+        if (box) {
+          const imgEl = box.querySelector('.gift-image');
+          
+          if (data.delivered) {
+            box.classList.remove('locked');
+            box.classList.add('unlocked');
+            unlockedCount++;
+            
+            if (data.imageBase64) {
+              imgEl.src = data.imageBase64;
+            } else {
+              imgEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='100%' height='100%' fill='%231f0a1a'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='serif' fill='%23dfba6b' font-size='18'>Gift Unlocked</text></svg>";
+            }
+          } else {
+            box.classList.remove('unlocked');
+            box.classList.add('locked');
+            
+            if (data.imageBase64) {
+              imgEl.src = data.imageBase64;
+            }
+          }
+        }
+      });
+
+      progressVal.textContent = `${unlockedCount} / 18 Unlocked`;
+      const percentage = (unlockedCount / 18) * 100;
+      progressBar.style.width = `${percentage}%`;
+    });
+  </script>
+</body>
+</html>
